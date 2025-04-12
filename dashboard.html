@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Productivity Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/dashboard.css">
+     <link rel="stylesheet" href="styles/themes.css"> <!-- Load themes -->
+     <!-- Chart.js for stats -->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6 font-sans transition-colors duration-300">
+
+    <header class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">Full Dashboard</h1>
+        <!-- Theme toggle can go here too -->
+         <button id="theme-toggle-button" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+              <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+         </button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Stats History Section -->
+        <section id="stats-history" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow md:col-span-2">
+            <h2 class="text-xl font-semibold mb-3">Productivity History</h2>
+            <div class="mb-4">
+                <label for="stats-range" class="mr-2 text-sm">View:</label>
+                <select id="stats-range" class="p-1 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                    <option value="weekly">Last 7 Days</option>
+                    <option value="monthly">Last 30 Days</option>
+                    <!-- <option value="custom">Custom Range</option> -->
+                </select>
+            </div>
+            <div>
+                <canvas id="stats-chart"></canvas>
+            </div>
+            <div class="mt-4 text-sm text-center" id="stats-summary">
+                <!-- Summary text -->
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="pro-settings" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-3">Pro Settings</h2>
+
+            <!-- Custom Pomodoro Intervals -->
+            <div class="mb-4 border-b dark:border-gray-700 pb-3">
+                 <h3 class="font-semibold mb-2 text-base">Pomodoro Intervals</h3>
+                 <div id="custom-intervals" class="text-sm space-y-1">
+                     <label>Focus (min): <input type="number" id="custom-focus-duration" min="1" class="w-16 p-1 border rounded dark:bg-gray-700 dark:border-gray-600"></label>
+                     <label>Break (min): <input type="number" id="custom-break-duration" min="1" class="w-16 p-1 border rounded dark:bg-gray-700 dark:border-gray-600"></label>
+                     <button id="save-custom-intervals" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs ml-2">Save</button>
+                 </div>
+            </div>
+
+             <!-- Auto Site Blocker -->
+             <div class="mb-4 border-b dark:border-gray-700 pb-3">
+                  <h3 class="font-semibold mb-2 text-base">Auto Site Blocker</h3>
+                   <label class="inline-flex items-center cursor-pointer mb-2">
+                       <input type="checkbox" id="auto-blocker-pref" class="form-checkbox h-4 w-4 mr-2 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"> Enable during Focus Mode
+                   </label>
+                  <div class="text-sm">
+                      <label for="blocked-sites-input" class="block mb-1">Blocked Sites (one per line):</label>
+                      <textarea id="blocked-sites-input" rows="4" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm" placeholder="e.g., facebook.com\ntwitter.com\nyoutube.com"></textarea>
+                      <button id="save-blocked-sites" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs mt-1">Save List</button>
+                  </div>
+             </div>
+
+            <!-- Pro Themes -->
+            <div class="mb-4 border-b dark:border-gray-700 pb-3">
+                <h3 class="font-semibold mb-2 text-base">Appearance</h3>
+                 <label for="pro-theme-select" class="mr-2 text-sm">Theme:</label>
+                 <select id="pro-theme-select" class="p-1 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                     <option value="light">Default Light</option> <!-- Changed value -->
+                     <option value="dark">Default Dark</option>
+                     <option value="solarized-light">Solarized Light</option>
+                     <option value="solarized-dark">Solarized Dark</option>
+                     <option value="zen">Zen</option>
+                 </select>
+            </div>
+
+             <!-- Focus Sounds -->
+            <div class="mb-4 border-b dark:border-gray-700 pb-3">
+                 <h3 class="font-semibold mb-2 text-base">Focus Sounds</h3>
+                  <label class="inline-flex items-center cursor-pointer mb-2">
+                       <input type="checkbox" id="focus-sounds-enabled" class="form-checkbox h-4 w-4 mr-2 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"> Enable Sounds during Focus
+                  </label>
+                 <div class="text-sm space-y-2">
+                     <div>
+                         <label for="focus-sound-select" class="mr-2">Sound:</label>
+                         <select id="focus-sound-select" class="p-1 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                             <option value="lofi">Lo-fi Beats</option>
+                             <option value="rain">Rain</option>
+                             <option value="cafe">Café Ambience</option>
+                             <!-- Add more options if you have more sounds -->
+                         </select>
+                     </div>
+                     <div>
+                        <label for="focus-sound-volume" class="mr-2">Volume:</label>
+                        <input type="range" id="focus-sound-volume" min="0" max="1" step="0.05" class="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 align-middle">
+                        <span id="volume-display" class="text-xs ml-1 align-middle">50%</span> <!-- Optional display -->
+                    </div>
+                 </div>
+            </div>
+
+             <!-- Integrations -->
+             <div class="mb-4">
+                  <h3 class="font-semibold mb-2 text-base">Integrations</h3>
+                  <div class="space-y-2 text-sm">
+                    <button id="connect-google-tasks" class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 px-3 py-1 rounded text-xs w-full text-left disabled:opacity-50">Connect Google Tasks</button>
+                     <span id="google-status" class="text-xs ml-2">Not Connected</span>
+                    <button id="connect-notion" class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 px-3 py-1 rounded text-xs w-full text-left disabled:opacity-50">Configure Notion</button>
+                    <span id="notion-status" class="text-xs ml-2">Not Configured</span>
+                  </div>
+             </div>
+
+        </section>
+
+        <!-- Advanced Task Management / Projects (Placeholder) -->
+        <section id="project-manager" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-3">Projects</h2>
+            <p class="text-sm text-gray-500">Project management interface coming soon...</p>
+            <!-- UI for creating/selecting/managing project lists -->
+        </section>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="utils/storage.js"></script>
+    <script src="utils/dateUtils.js"></script>
+    <!-- Load Feature Components Needed by Dashboard -->
+    <script src="components/proFeatures.js"></script> <!-- Needed for Pro check -->
+    <script src="components/themeManager.js"></script> <!-- Manages theme switching -->
+    <script src="components/statsTracker.js"></script> <!-- Stats logic -->
+    <script src="components/soundManager.js"></script> <!-- Sound logic -->
+    <!-- Dashboard specific logic -->
+    <script src="dashboard.js"></script>
+
+</body>
+</html>

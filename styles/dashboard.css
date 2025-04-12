@@ -1,0 +1,5 @@
+/* Add specific styles for the dashboard if Tailwind isn't enough */
+#stats-chart {
+    max-height: 350px; /* Adjust as needed */
+    width: 100%;
+}

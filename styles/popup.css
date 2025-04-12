@@ -1,0 +1,32 @@
+/* Add any custom styles or overrides here */
+body {
+    /* Ensures the popup size is fixed */
+    min-width: 384px; /* w-96 */
+    max-width: 384px;
+}
+
+/* Style for completed tasks */
+.task-item.completed span {
+    text-decoration: line-through;
+    color: #6b7280; /* Tailwind gray-500 */
+}
+
+.dark .task-item.completed span {
+     color: #9ca3af; /* Tailwind gray-400 */
+}
+
+/* Hide scrollbar but allow scrolling */
+#task-list::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+#task-list {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Basic input focus styles if needed beyond Tailwind defaults */
+input[type="text"]:focus, input[type="number"]:focus {
+    /* Example: outline: 2px solid transparent;
+       outline-offset: 2px; */
+    /* Tailwind's focus:ring usually handles this well */
+}

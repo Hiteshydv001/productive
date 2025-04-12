@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Productivity Dashboard",
+  "version": "1.0.0",
+  "description": "Personal productivity tool: tasks, Pomodoro, tab limit, stats.",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs",
+    "identity",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png"
+    }
+  },
+  "chrome_url_overrides": {},
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' https://cdn.tailwindcss.com https://js.stripe.com https://apis.google.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.stripe.com https://api.notion.com https://www.googleapis.com;"
+  },
+  "host_permissions": [
+    "https://*.google.com/*",
+    "https://*.googleapis.com/*",
+    "https://api.notion.com/*",
+    "https://*.stripe.com/*",
+    "https://*.firebaseapp.com/*",
+    "<all_urls>"
+  ],
+   "oauth2": {
+     "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+     "scopes": [
+       "https://www.googleapis.com/auth/tasks"
+     ]
+   }
+}
