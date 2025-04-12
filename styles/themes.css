@@ -1,45 +1,74 @@
-/* Light theme is default via Tailwind classes */
+/* styles/themes.css */
 
-/* Dark Theme */
+/* Define base CSS variables for dynamic theme switching */
+:root {
+    /* Default Light Theme (matching Tailwind defaults where possible) */
+    --bg-primary: #f9fafb; /* gray-50 */
+    --bg-secondary: #ffffff; /* white */
+    --bg-accent: #f3f4f6; /* gray-100 */
+    --text-primary: #1f2937; /* gray-800 */
+    --text-secondary: #6b7280; /* gray-500 */
+    --border-color: #e5e7eb; /* gray-200 */
+    --accent-color: #3b82f6; /* blue-500 */
+    --accent-hover: #2563eb; /* blue-600 */
+    --success-color: #10b981; /* green-500 */
+    --warning-color: #f59e0b; /* amber-500 */
+    --danger-color: #ef4444; /* red-500 */
+    --pro-gradient-start: #a855f7; /* purple-500 */
+    --pro-gradient-end: #4f46e5; /* indigo-600 */
+}
+
 .dark {
-    /* Tailwind handles most dark mode via `dark:` prefixes */
-    /* Add specific overrides if needed */
+    /* Dark Theme Overrides */
+    --bg-primary: #111827; /* gray-900 */
+    --bg-secondary: #1f2937; /* gray-800 */
+    --bg-accent: #374151; /* gray-700 */
+    --text-primary: #f9fafb; /* gray-50 */
+    --text-secondary: #9ca3af; /* gray-400 */
+    --border-color: #4b5563; /* gray-600 - Slightly lighter border in dark */
+    --accent-color: #60a5fa; /* blue-400 */
+    --accent-hover: #3b82f6; /* blue-500 */
+    --success-color: #34d399; /* green-400 */
+    --warning-color: #fcd34d; /* amber-300 */
+    --danger-color: #f87171; /* red-400 */
+    --pro-gradient-start: #c084fc; /* purple-400 */
+    --pro-gradient-end: #818cf8; /* indigo-400 */
 }
 
-/* --- PRO THEMES (Example Structure) --- */
+/* --- Pro Themes --- */
+/* Apply .dark within the pro theme class for dark mode overrides */
+/* Example: .theme-solarized-light.dark { ... } */
+
 .theme-solarized-light {
-    --bg-primary: #fdf6e3;
-    --bg-secondary: #eee8d5;
-    --text-primary: #657b83;
-    --text-secondary: #586e75;
-    --accent-color: #268bd2;
-    --highlight-color: #b58900;
-    /* ... more variables */
+   --bg-primary: #fdf6e3; --bg-secondary: #eee8d5; --bg-accent: #f5f0de;
+   --text-primary: #657b83; --text-secondary: #586e75; --border-color: #dcd5c6; /* Slightly darker border */
+   --accent-color: #268bd2; --accent-hover: #1e6a9e; --success-color: #859900;
+   --warning-color: #b58900; --danger-color: #dc322f;
+   --pro-gradient-start: #6c71c4; --pro-gradient-end: #d33682;
 }
+
 .theme-solarized-dark {
-     --bg-primary: #002b36;
-     --bg-secondary: #073642;
-     --text-primary: #839496;
-     --text-secondary: #93a1a1;
-     --accent-color: #268bd2;
-     --highlight-color: #b58900;
-     /* ... more variables */
+   --bg-primary: #002b36; --bg-secondary: #073642; --bg-accent: #0a4250; /* Darker accent */
+   --text-primary: #839496; --text-secondary: #586e75; --border-color: #0e4f60; /* Slightly lighter border */
+   --accent-color: #268bd2; --accent-hover: #52a5e0; --success-color: #859900;
+   --warning-color: #b58900; --danger-color: #dc322f;
+   --pro-gradient-start: #6c71c4; --pro-gradient-end: #d33682;
 }
+.theme-solarized-dark.dark {} /* Already dark */
+
 
 .theme-zen {
-    /* Define Zen theme colors */
-     --bg-primary: #f5f5f5;
-     --bg-secondary: #e0e0e0;
-     --text-primary: #333333;
-     --accent-color: #81c784; /* Soft green */
-     /* ... */
+    --bg-primary: #f5f5f5; --bg-secondary: #ffffff; --bg-accent: #eeeeee; /* Slightly lighter */
+    --text-primary: #424242; --text-secondary: #757575; --border-color: #e0e0e0;
+    --accent-color: #81c784; --accent-hover: #66bb6a; --success-color: #81c784;
+    --warning-color: #ffb74d; --danger-color: #e57373;
+    --pro-gradient-start: #a5d6a7; --pro-gradient-end: #80cbc4;
 }
-
-/* Apply theme variables (Example for body background) */
-.theme-solarized-light body { background-color: var(--bg-primary); color: var(--text-primary); }
-.theme-solarized-dark body { background-color: var(--bg-primary); color: var(--text-primary); }
-.theme-zen body { background-color: var(--bg-primary); color: var(--text-primary); }
-
-/* Apply variables to specific elements as needed */
-.theme-solarized-light #add-task-button { background-color: var(--accent-color); }
-/* ... etc ... */
+/* Dark version of Zen */
+.theme-zen.dark {
+    --bg-primary: #263238; --bg-secondary: #37474f; --bg-accent: #455a64; /* Blue-grey dark */
+    --text-primary: #eceff1; --text-secondary: #b0bec5; --border-color: #546e7a;
+    --accent-color: #a5d6a7; --accent-hover: #c8e6c9; --success-color: #a5d6a7;
+    --warning-color: #ffcc80; --danger-color: #ef9a9a;
+    --pro-gradient-start: #81c784; --pro-gradient-end: #4db6ac;
+}

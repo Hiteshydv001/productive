@@ -1,11 +1,14 @@
+// components/taskManager.js
+
 const taskManager = {
     TASK_LIMIT_FREE: 10,
     tasks: [],
-    todayKey: dateUtils.getTodayKey(),
-    isPro: false, // Will be updated by proFeatures.js
+    todayKey: (typeof dateUtils !== 'undefined' ? dateUtils.getTodayKey() : new Date().toISOString().split('T')[0]),
+    isPro: false,
 
     init: async () => {
-        taskManager.isPro = await proFeatures.isProUser();
+        if (typeof proFeatures === 'undefined') { console.error("proFeatures unavailable."); taskManager.isPro = false; }
+        else { try { taskManager.isPro = await proFeatures.isProUser(); } catch (e) { console.error(e); taskManager.isPro = false; } }
         await taskManager.loadTasks();
         taskManager.renderTasks();
         taskManager.setupEventListeners();
@@ -13,185 +16,158 @@ const taskManager = {
     },
 
     setupEventListeners: () => {
-        const addTaskButton = document.getElementById('add-task-button');
-        const newTaskInput = document.getElementById('new-task-input');
-        const taskList = document.getElementById('task-list');
+        document.getElementById('add-task-button')?.addEventListener('click', taskManager.handleAddTask);
+        document.getElementById('new-task-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') taskManager.handleAddTask(); });
 
-        if (addTaskButton) {
-            addTaskButton.addEventListener('click', taskManager.handleAddTask);
-        }
-        if (newTaskInput) {
-            newTaskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    taskManager.handleAddTask();
-                }
-            });
-        }
-        // Use event delegation for checkbox changes and delete buttons
+        const taskList = document.getElementById('task-list');
         if (taskList) {
-            taskList.addEventListener('change', (e) => {
-                if (e.target.type === 'checkbox' && e.target.dataset.taskId) {
-                    taskManager.toggleTaskCompletion(e.target.dataset.taskId, e.target.checked);
+            taskList.addEventListener('change', (e) => { // Handle checkbox change
+                if (e.target instanceof HTMLInputElement && e.target.type === 'checkbox' && e.target.dataset.taskId) {
+                    const taskItem = e.target.closest('li.task-item');
+                    taskManager.toggleTaskCompletion(e.target.dataset.taskId, e.target.checked, taskItem);
                 }
             });
-            taskList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-task-button') && e.target.dataset.taskId) {
-                    taskManager.deleteTask(e.target.dataset.taskId);
-                }
-                // Add edit functionality here if needed
+            taskList.addEventListener('click', (e) => { // Handle delete button click
+                 if (e.target instanceof Element) {
+                    const deleteButton = e.target.closest('.delete-task-button');
+                    if (deleteButton && deleteButton.dataset.taskId) {
+                        const taskItem = deleteButton.closest('li.task-item');
+                        taskManager.deleteTask(deleteButton.dataset.taskId, taskItem);
+                    }
+                 }
             });
         }
-         // Pro upsell link
-         const upgradeLink = document.getElementById('upgrade-tasks-link');
-         if (upgradeLink) {
-             upgradeLink.addEventListener('click', (e) => {
-                 e.preventDefault();
-                 // Trigger Pro upgrade flow (e.g., show Stripe checkout)
-                 proFeatures.showUpgradePopup();
-             });
-         }
+        document.getElementById('upgrade-tasks-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof proFeatures !== 'undefined') proFeatures.showUpgradePopup();
+        });
     },
 
-    handleAddTask: () => {
+    handleAddTask: async () => {
         const newTaskInput = document.getElementById('new-task-input');
+        const addTaskButton = document.getElementById('add-task-button');
+        if (!newTaskInput || !addTaskButton) return;
         const text = newTaskInput.value.trim();
-        if (!text) return;
+        if (!text || !taskManager.checkTaskLimit()) return;
 
-        const canAddTask = taskManager.checkTaskLimit();
-        if (!canAddTask) {
-            return; // Warning already shown
-        }
-
-        taskManager.addTask(text);
-        newTaskInput.value = ''; // Clear input
+        if (typeof animateButtonClick === 'function') animateButtonClick(addTaskButton);
+        await taskManager.addTask(text);
+        newTaskInput.value = '';
+        newTaskInput.focus();
     },
 
     checkTaskLimit: () => {
         const limitWarning = document.getElementById('task-limit-warning');
-        const today = dateUtils.getTodayKey();
+        if (!limitWarning) return true;
+        const today = typeof dateUtils !== 'undefined' ? dateUtils.getTodayKey() : new Date().toISOString().split('T')[0];
         const dailyTaskCount = taskManager.tasks.filter(t => t.addedDate === today).length;
-
-        if (!taskManager.isPro && dailyTaskCount >= taskManager.TASK_LIMIT_FREE) {
-            if (limitWarning) limitWarning.classList.remove('hidden');
-            return false;
-        } else {
-            if (limitWarning) limitWarning.classList.add('hidden');
-            return true;
-        }
+        const shouldWarn = !taskManager.isPro && dailyTaskCount >= taskManager.TASK_LIMIT_FREE;
+        limitWarning.classList.toggle('hidden', !shouldWarn);
+        return !shouldWarn;
     },
 
     loadTasks: async () => {
-        // Loads tasks relevant for today's view (or all if Pro/using projects)
-        // For simplicity, free loads all, but only counts today's adds towards limit
-        const data = await storage.get({ tasks: [] });
-        taskManager.tasks = data.tasks || [];
-        // Optional: Filter out very old completed tasks if needed for performance
+       if (typeof storage === 'undefined') { console.error("Storage unavailable."); taskManager.tasks = []; return; }
+       try {
+          const data = await storage.get({ tasks: [] });
+          taskManager.tasks = Array.isArray(data.tasks) ? data.tasks : [];
+       } catch (error) { console.error("Error loading tasks:", error); taskManager.tasks = []; }
     },
 
     saveTasks: async () => {
-        await storage.set({ tasks: taskManager.tasks });
-        // --- PRO FEATURE: Cloud Sync ---
-        // if (taskManager.isPro && userIsLoggedIn) {
-        //    await storage.setFirebase('tasks', taskManager.tasks);
-        // }
+       if (typeof storage === 'undefined') { console.error("Storage unavailable."); return; }
+       try { await storage.set({ tasks: taskManager.tasks }); }
+       catch (error) { console.error("Error saving tasks:", error); }
     },
 
-    addTask: async (text, category = 'Work') => { // Basic category
-        const newTask = {
-            id: `task-${Date.now()}-${Math.random().toString(16).slice(2)}`, // Unique ID
-            text: text,
-            completed: false,
-            addedDate: dateUtils.getTodayKey(),
-            completedDate: null,
-            category: category,
-            // --- PRO FEATURE: Project ID ---
-            // projectId: currentProjectId || null // Add logic for project selection
-        };
-
+    addTask: async (text, category = 'Work') => {
+        const today = typeof dateUtils !== 'undefined' ? dateUtils.getTodayKey() : new Date().toISOString().split('T')[0];
+        const newTask = { id: `task-${Date.now()}-${Math.random().toString(16).slice(2)}`, text, completed: false, addedDate: today, completedDate: null, category };
         taskManager.tasks.push(newTask);
-        taskManager.renderTaskItem(newTask); // Add only the new task to the UI
+        taskManager.renderTaskItem(newTask, true); // Animate
         await taskManager.saveTasks();
-        taskManager.checkTaskLimit(); // Re-check limit display after adding
-        statsTracker.updateStats(); // Update stats display
+        taskManager.checkTaskLimit();
+        if (typeof statsTracker !== 'undefined') await statsTracker.updateStats();
     },
 
-    toggleTaskCompletion: async (taskId, isCompleted) => {
+    toggleTaskCompletion: async (taskId, isCompleted, taskItemElement) => {
         const taskIndex = taskManager.tasks.findIndex(t => t.id === taskId);
         if (taskIndex > -1) {
+            const today = typeof dateUtils !== 'undefined' ? dateUtils.getTodayKey() : new Date().toISOString().split('T')[0];
             taskManager.tasks[taskIndex].completed = isCompleted;
-            taskManager.tasks[taskIndex].completedDate = isCompleted ? dateUtils.getTodayKey() : null;
+            taskManager.tasks[taskIndex].completedDate = isCompleted ? today : null;
             await taskManager.saveTasks();
-            taskManager.renderTasks(); // Re-render to apply style/move task
-            statsTracker.updateStats(); // Update stats display
-
-            // --- PRO FEATURE: Notion/Google Tasks Integration ---
-            // if (taskManager.isPro && isCompleted) {
-            //     integration.googleTasks.markTaskComplete(taskId); // Hypothetical function
-            //     integration.notion.pushCompletedTask(taskManager.tasks[taskIndex]); // Hypothetical function
-            // }
+            if (taskItemElement) taskItemElement.classList.toggle('completed', isCompleted);
+            else taskManager.renderTasks(); // Fallback
+            if (typeof statsTracker !== 'undefined') await statsTracker.updateStats();
         }
     },
 
-    deleteTask: async (taskId) => {
-        taskManager.tasks = taskManager.tasks.filter(t => t.id !== taskId);
-        await taskManager.saveTasks();
-        taskManager.renderTasks(); // Re-render the list
-        statsTracker.updateStats(); // Update stats display
-        taskManager.checkTaskLimit(); // Update limit warning if needed
+    deleteTask: async (taskId, taskItemElement) => {
+         const useAnimation = typeof gsap !== 'undefined' && taskItemElement;
+         if (useAnimation) {
+             gsap.to(taskItemElement, {
+                 duration: 0.3, opacity: 0, height: 0, padding: 0, margin: 0, x: -30,
+                 ease: "power1.in",
+                 onComplete: async () => {
+                     try { if(taskItemElement.parentNode) taskItemElement.remove(); } catch (e) {}
+                     taskManager.tasks = taskManager.tasks.filter(t => t.id !== taskId);
+                     await taskManager.saveTasks();
+                     if (typeof statsTracker !== 'undefined') await statsTracker.updateStats();
+                     taskManager.checkTaskLimit();
+                 }
+             });
+         } else {
+             if (taskItemElement?.parentNode) taskItemElement.remove();
+             taskManager.tasks = taskManager.tasks.filter(t => t.id !== taskId);
+             await taskManager.saveTasks();
+             if(!taskItemElement) taskManager.renderTasks();
+             if (typeof statsTracker !== 'undefined') await statsTracker.updateStats();
+             taskManager.checkTaskLimit();
+         }
     },
-
-    // --- PRO FEATURE: Edit Task (Example) ---
-    // editTask: async (taskId, newText, newCategory, newProjectId) => { ... saveTasks ... renderTasks ... }
 
     renderTasks: () => {
         const taskList = document.getElementById('task-list');
         if (!taskList) return;
-        taskList.innerHTML = ''; // Clear existing list
-
-        // Show incomplete tasks first, then completed
-        const sortedTasks = [...taskManager.tasks].sort((a, b) => a.completed - b.completed);
-
-        sortedTasks.forEach(task => {
-            taskManager.renderTaskItem(task);
-        });
+        taskList.innerHTML = '';
+        const sortedTasks = [...taskManager.tasks].sort((a, b) => (a.completed === b.completed) ? 0 : a.completed ? 1 : -1);
+        sortedTasks.forEach(task => taskManager.renderTaskItem(task, false));
     },
 
-    renderTaskItem: (task) => {
+    renderTaskItem: (task, shouldAnimate = false) => {
         const taskList = document.getElementById('task-list');
         if (!taskList) return;
-
         const li = document.createElement('li');
-        li.className = `task-item flex items-center justify-between group bg-gray-50 dark:bg-gray-700 p-1.5 rounded transition-colors duration-200 ${task.completed ? 'completed' : ''}`;
+        li.id = `task-li-${task.id}`;
+        li.className = `task-item flex items-center justify-between group bg-[--bg-secondary] hover:bg-[--bg-accent] px-2.5 py-2 rounded-md border border-transparent transition-colors duration-150 ${task.completed ? 'completed' : ''}`;
         li.dataset.taskId = task.id;
 
+        if (shouldAnimate && typeof gsap !== 'undefined') gsap.set(li, { opacity: 0, y: -15 });
+        else { li.style.opacity = '1'; li.style.transform = 'none'; }
+
         li.innerHTML = `
-            <div class="flex items-center flex-grow mr-2 overflow-hidden">
-                <input type="checkbox" data-task-id="${task.id}" class="mr-2 form-checkbox h-4 w-4 text-green-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-800 focus:ring-green-500 flex-shrink-0" ${task.completed ? 'checked' : ''}>
-                <span class="truncate" title="${task.text}">${task.text}</span>
-                 <!-- Optional: Category Tag -->
-                 <!-- <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-1 rounded dark:bg-blue-900 dark:text-blue-200">${task.category}</span> -->
+            <div class="flex items-center flex-grow mr-2 overflow-hidden min-w-0">
+                <input type="checkbox" data-task-id="${task.id}" id="task-checkbox-${task.id}" class="custom-checkbox flex-shrink-0">
+                <label for="task-checkbox-${task.id}" class="truncate cursor-pointer pl-2 text-[--text-primary]" title="${task.text}">${task.text}</label>
             </div>
-            <button data-task-id="${task.id}" class="delete-task-button text-red-500 opacity-0 group-hover:opacity-100 text-xs px-1 flex-shrink-0">Delete</button>
+            <button data-task-id="${task.id}" class="delete-task-button text-[--text-secondary] hover:text-[--danger-color] opacity-0 group-hover:opacity-100 p-1 -mr-1 rounded-full hover:bg-[--danger-color]/10 text-xs flex-shrink-0 transition-all" aria-label="Delete task">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /> </svg>
+            </button>
         `;
-        // Prepend incomplete tasks, append completed tasks
-        if (task.completed) {
-            taskList.appendChild(li);
-        } else {
-            taskList.prepend(li);
+        const checkbox = li.querySelector(`#task-checkbox-${task.id}`);
+        if (checkbox) checkbox.checked = task.completed;
+
+        if (task.completed) taskList.appendChild(li);
+        else taskList.prepend(li);
+
+        if (shouldAnimate && typeof gsap !== 'undefined') {
+             gsap.to(li, { delay: 0.02, opacity: 1, y: 0, duration: 0.3, ease: "power1.out", clearProps: "opacity,transform" });
         }
     },
 
      updateUIBasedOnProStatus: () => {
-         const upsell = document.getElementById('pro-tasks-upsell');
-         if (!upsell) return;
-
-         if (taskManager.isPro) {
-             upsell.classList.add('hidden');
-             // Enable project features UI if implemented
-         } else {
-             upsell.classList.remove('hidden');
-             // Disable project features UI
-         }
-         taskManager.checkTaskLimit(); // Ensure limit warning respects pro status
+       document.getElementById('pro-tasks-upsell')?.classList.toggle('hidden', taskManager.isPro);
+       taskManager.checkTaskLimit();
      }
 };

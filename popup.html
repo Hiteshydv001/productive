@@ -4,151 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productivity Dashboard</title>
-    <!-- Tailwind CSS CDN (For Development/Simplicity) -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles/popup.css">
-    <link rel="stylesheet" href="styles/themes.css"> <!-- Load themes -->
+    <!-- GSAP Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/themes.css"> <!-- Load Themes First -->
+    <link rel="stylesheet" href="styles/popup.css"> <!-- Load Popup Styles -->
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 w-96 p-4 font-sans transition-colors duration-300">
+<body class="antialiased font-sans text-base w-96 overflow-hidden bg-[--bg-primary] text-[--text-primary] transition-colors duration-300">
 
-    <div id="app-container" class="space-y-4">
-        <!-- Header / Theme Toggle -->
-        <header class="flex justify-between items-center">
-            <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">Dashboard</h1>
-            <button id="theme-toggle-button" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+    <div id="app-container" class="p-4 space-y-5 flex flex-col h-[580px] max-h-[600px]"> <!-- Fixed Height -->
+        <!-- Header -->
+        <header class="flex justify-between items-center opacity-0 flex-shrink-0"> <!-- GSAP target -->
+            <h1 class="text-lg font-semibold text-[--text-primary]">Dashboard</h1>
+            <button id="theme-toggle-button" class="p-1.5 rounded-full text-[--text-secondary] hover:bg-[--bg-accent] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--accent-color] focus:ring-offset-[--bg-primary]" aria-label="Toggle theme">
+                <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
             </button>
         </header>
 
-        <!-- Task Manager -->
-        <section id="task-manager" class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow">
-            <h2 class="text-lg font-semibold mb-2">Tasks Today</h2>
-            <div class="flex mb-2">
-                <input type="text" id="new-task-input" placeholder="Add a new task..." class="flex-grow p-2 border rounded-l dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button id="add-task-button" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r">+</button>
-            </div>
-            <p id="task-limit-warning" class="text-xs text-red-500 mb-2 hidden">Task limit reached for today (Free Plan).</p>
-            <ul id="task-list" class="space-y-1 text-sm max-h-40 overflow-y-auto">
-                <!-- Tasks will be dynamically added here -->
-                <!-- Example Task Item:
-                <li class="flex items-center justify-between group bg-gray-50 dark:bg-gray-700 p-1.5 rounded">
-                    <div class="flex items-center">
-                        <input type="checkbox" class="mr-2 form-checkbox h-4 w-4 text-green-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-800 focus:ring-green-500">
-                        <span>Task description</span>
+        <!-- Main Content Area (Scrollable) -->
+        <main class="flex-grow space-y-4 overflow-y-auto pr-1.5 -mr-1.5 custom-scrollbar">
+
+            <!-- Task Manager Card -->
+            <section id="task-manager" class="bg-[--bg-secondary] p-3.5 rounded-lg border border-[--border-color] shadow-sm opacity-0"> <!-- GSAP target -->
+                <h2 class="text-base font-semibold mb-2.5 text-[--text-primary]">Tasks Today</h2>
+                <div class="flex items-center space-x-2 mb-2">
+                    <input type="text" id="new-task-input" placeholder="Add a new task..." class="flex-grow p-2 text-sm border border-[--border-color] rounded-md bg-[--bg-accent] focus:outline-none focus:ring-2 focus:ring-[--accent-color] focus:border-transparent placeholder-[--text-secondary] transition-colors">
+                    <button id="add-task-button" class="flex-shrink-0 bg-[--accent-color] hover:bg-[--accent-hover] text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--accent-color] focus:ring-offset-[--bg-secondary] transition-colors duration-150" aria-label="Add task">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /> </svg>
+                    </button>
+                </div>
+                <p id="task-limit-warning" class="text-xs text-[--danger-color] mb-2 hidden">Task limit reached for today (Free Plan).</p>
+                <ul id="task-list" class="space-y-1.5 text-sm max-h-36 overflow-y-auto custom-scrollbar-small pr-1">
+                    <!-- Tasks dynamically added by taskManager.js -->
+                </ul>
+                <div id="pro-tasks-upsell" class="mt-3 pt-2 border-t border-[--border-color] text-center text-xs hidden">
+                    <a href="#" id="upgrade-tasks-link" class="text-[--accent-color] hover:text-[--accent-hover] hover:underline">Upgrade for unlimited tasks & projects!</a>
+                </div>
+            </section>
+
+            <!-- Pomodoro Timer Card -->
+            <section id="pomodoro-timer" class="bg-[--bg-secondary] p-3.5 rounded-lg border border-[--border-color] shadow-sm text-center opacity-0"> <!-- GSAP target -->
+                <h2 class="text-base font-semibold mb-1 text-[--text-primary]">Pomodoro</h2>
+                 <div id="timer-mode" class="text-xs text-[--text-secondary] mb-2 font-medium uppercase tracking-wider">Focus Time</div>
+                <div id="timer-display" class="text-5xl font-mono font-bold my-2 text-[--text-primary]">
+                    <span id="timer-minutes">25</span>:<span id="timer-seconds">00</span>
+                </div>
+                <div class="flex justify-center space-x-2 my-3">
+                    <button id="timer-start" class="px-4 py-1.5 text-sm font-medium rounded-md bg-[--success-color] text-white hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--success-color] focus:ring-offset-[--bg-secondary] transition-all duration-150">Start</button>
+                    <button id="timer-pause" class="px-4 py-1.5 text-sm font-medium rounded-md bg-[--warning-color] text-gray-800 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--warning-color] focus:ring-offset-[--bg-secondary] transition-all duration-150 hidden">Pause</button>
+                    <button id="timer-reset" class="px-4 py-1.5 text-sm font-medium rounded-md bg-[--danger-color] text-white hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--danger-color] focus:ring-offset-[--bg-secondary] transition-all duration-150">Reset</button>
+                </div>
+                <div class="text-xs mt-3 pt-2 border-t border-[--border-color] flex items-center justify-center space-x-2">
+                    <input type="checkbox" id="pomodoro-notifications" class="custom-checkbox">
+                    <label for="pomodoro-notifications" class="text-[--text-secondary] cursor-pointer">Notify on phase end</label>
+                </div>
+                 <div id="pro-pomodoro-upsell" class="mt-2 text-center text-xs hidden">
+                     <a href="#" id="upgrade-pomodoro-link" class="text-[--accent-color] hover:text-[--accent-hover] hover:underline">Upgrade for custom intervals!</a>
+                 </div>
+                 <div id="custom-intervals" class="mt-3 text-xs space-y-1.5 text-left hidden bg-[--bg-accent] p-2.5 rounded-md border border-[--border-color]">
+                     <h4 class="font-medium text-xs text-center mb-1 text-[--text-secondary]">Custom Durations (Pro)</h4>
+                     <div class="flex items-center justify-between">
+                         <label for="custom-focus-duration" class="text-[--text-secondary]">Focus:</label>
+                         <input type="number" id="custom-focus-duration" min="1" class="w-16 p-1 text-xs border border-[--border-color] rounded bg-[--bg-secondary] focus:ring-1 focus:ring-[--accent-color] focus:border-[--accent-color]">
+                     </div>
+                     <div class="flex items-center justify-between">
+                         <label for="custom-break-duration" class="text-[--text-secondary]">Break:</label>
+                         <input type="number" id="custom-break-duration" min="1" class="w-16 p-1 text-xs border border-[--border-color] rounded bg-[--bg-secondary] focus:ring-1 focus:ring-[--accent-color] focus:border-[--accent-color]">
+                     </div>
+                    <button id="save-custom-intervals" class="w-full mt-1.5 bg-[--accent-color] hover:bg-[--accent-hover] text-white px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[--accent-color] focus:ring-offset-[--bg-accent]">Save Intervals</button>
+                </div>
+            </section>
+
+            <!-- Tab Limiter Card -->
+            <section id="tab-limiter" class="bg-[--bg-secondary] p-3.5 rounded-lg border border-[--border-color] shadow-sm opacity-0"> <!-- GSAP target -->
+                <div class="flex justify-between items-center mb-2.5">
+                    <h2 class="text-base font-semibold text-[--text-primary]">Tab Limiter</h2>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="tab-limiter-toggle" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-[--bg-accent] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-1 peer-focus:ring-[--accent-color] dark:peer-focus:ring-[--accent-color] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 dark:after:bg-gray-400 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[--accent-color]"></div>
+                        <!-- Removed text label, toggle is clear enough -->
+                    </label>
+                </div>
+                <div id="tab-limiter-settings" class="mt-2 space-y-1.5 text-xs hidden bg-[--bg-accent] p-2.5 rounded-md border border-[--border-color]">
+                     <div class="flex items-center justify-between">
+                        <label for="max-tabs-input" class="text-[--text-secondary]">Max Tabs:</label>
+                        <input type="number" id="max-tabs-input" min="1" max="50" value="5" class="w-16 p-1 text-xs border border-[--border-color] rounded bg-[--bg-secondary] focus:ring-1 focus:ring-[--accent-color] focus:border-[--accent-color]">
                     </div>
-                    <button class="delete-task-button text-red-500 opacity-0 group-hover:opacity-100 text-xs">Delete</button>
-                </li> -->
-            </ul>
-            <div id="pro-tasks-upsell" class="mt-2 text-center text-xs hidden">
-                <a href="#" id="upgrade-tasks-link" class="text-blue-500 hover:underline">Upgrade to Pro for unlimited tasks & projects!</a>
-            </div>
-        </section>
+                    <button id="save-max-tabs" class="w-full mt-1.5 bg-[--accent-color] hover:bg-[--accent-hover] text-white px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[--accent-color] focus:ring-offset-[--bg-accent]">Set Limit</button>
+                </div>
+                 <div id="pro-tabblock-upsell" class="mt-3 pt-2 border-t border-[--border-color] text-center text-xs hidden">
+                     <a href="#" id="upgrade-tabblock-link" class="text-[--accent-color] hover:text-[--accent-hover] hover:underline">Upgrade for auto site blocking!</a>
+                 </div>
+            </section>
 
-        <!-- Pomodoro Timer -->
-        <section id="pomodoro-timer" class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow text-center">
-            <h2 class="text-lg font-semibold mb-2">Pomodoro</h2>
-            <div id="timer-display" class="text-4xl font-mono font-bold my-2">
-                <span id="timer-minutes">25</span>:<span id="timer-seconds">00</span>
-            </div>
-            <div id="timer-mode" class="text-sm text-gray-500 dark:text-gray-400 mb-3">Focus Time</div>
-            <div class="space-x-2">
-                <button id="timer-start" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm">Start</button>
-                <button id="timer-pause" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded text-sm hidden">Pause</button>
-                <button id="timer-reset" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded text-sm">Reset</button>
-            </div>
-            <div class="text-xs mt-2">
-                <label><input type="checkbox" id="pomodoro-notifications" class="form-checkbox h-3 w-3 mr-1"> Notify on break/focus</label>
-            </div>
-            <!-- Pro Feature Placeholder -->
-            <div id="pro-pomodoro-upsell" class="mt-2 text-center text-xs hidden">
-                 <a href="#" id="upgrade-pomodoro-link" class="text-blue-500 hover:underline">Upgrade to Pro for custom intervals!</a>
-            </div>
-             <!-- Pro Feature: Custom Intervals Settings (Initially Hidden) -->
-            <div id="custom-intervals" class="mt-3 text-xs space-y-1 hidden">
-                <label>Focus (min): <input type="number" id="custom-focus-duration" min="1" class="w-12 p-1 border rounded dark:bg-gray-700 dark:border-gray-600"></label>
-                <label>Break (min): <input type="number" id="custom-break-duration" min="1" class="w-12 p-1 border rounded dark:bg-gray-700 dark:border-gray-600"></label>
-                <button id="save-custom-intervals" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-0.5 rounded text-xs ml-2">Save</button>
-            </div>
-        </section>
+            <!-- Daily Focus Stats Card -->
+            <section id="daily-stats" class="bg-[--bg-secondary] p-3.5 rounded-lg border border-[--border-color] shadow-sm text-center opacity-0"> <!-- GSAP target -->
+                <h2 class="text-base font-semibold mb-2.5 text-[--text-primary]">Today's Progress</h2>
+                <div class="flex justify-around items-start text-sm space-x-3">
+                    <div class="flex flex-col items-center">
+                        <span class="text-3xl font-semibold text-[--accent-color]" id="stats-tasks-completed">0</span>
+                        <p class="text-xs text-[--text-secondary] mt-0.5 leading-tight">Tasks<br>Done</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-3xl font-semibold text-[--success-color]" id="stats-pomodoros-completed">0</span>
+                        <p class="text-xs text-[--text-secondary] mt-0.5 leading-tight">Pomodoro<br>Sessions</p>
+                    </div>
+                     <div id="streak-display" class="flex flex-col items-center hidden">
+                         <span class="text-3xl font-semibold text-[--warning-color]" id="streak-count">0</span>
+                         <p class="text-xs text-[--text-secondary] mt-0.5 leading-tight">Day<br>Streak 🔥</p>
+                     </div>
+                </div>
+                 <div id="pro-stats-upsell" class="mt-3 pt-2 border-t border-[--border-color] text-center text-xs hidden">
+                     <a href="#" id="upgrade-stats-link" class="text-[--accent-color] hover:text-[--accent-hover] hover:underline">Upgrade for full history & streaks!</a>
+                 </div>
+            </section>
 
-        <!-- Tab Limiter -->
-        <section id="tab-limiter" class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold">Tab Limiter</h2>
-                <label class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="tab-limiter-toggle" class="sr-only peer">
-                    <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Enable</span>
-                </label>
-            </div>
-            <div id="tab-limiter-settings" class="mt-2 text-xs hidden">
-                <label for="max-tabs-input">Max Tabs:</label>
-                <input type="number" id="max-tabs-input" min="1" max="50" value="5" class="w-12 p-1 border rounded dark:bg-gray-700 dark:border-gray-600">
-                <button id="save-max-tabs" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-0.5 rounded text-xs ml-2">Set</button>
-            </div>
-             <!-- Pro Feature Placeholder -->
-             <div id="pro-tabblock-upsell" class="mt-2 text-center text-xs hidden">
-                 <a href="#" id="upgrade-tabblock-link" class="text-blue-500 hover:underline">Upgrade to Pro for auto site blocking!</a>
+             <!-- Go to Full Dashboard (Pro) -->
+             <div id="dashboard-link-container" class="text-center pt-1 hidden opacity-0"> <!-- GSAP target -->
+                <a href="dashboard.html" target="_blank" class="text-sm text-[--accent-color] hover:text-[--accent-hover] hover:underline font-medium">
+                    View Full Dashboard & Stats →
+                </a>
              </div>
-        </section>
 
-        <!-- Daily Focus Stats -->
-        <section id="daily-stats" class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow text-center">
-            <h2 class="text-lg font-semibold mb-2">Today's Progress</h2>
-            <div class="flex justify-around text-sm">
-                <div>Tasks Done: <span id="stats-tasks-completed" class="font-bold">0</span></div>
-                <div>Pomodoros: <span id="stats-pomodoros-completed" class="font-bold">0</span></div>
-            </div>
-             <!-- Pro Feature Placeholder -->
-             <div id="pro-stats-upsell" class="mt-2 text-center text-xs hidden">
-                 <a href="#" id="upgrade-stats-link" class="text-blue-500 hover:underline">Upgrade to Pro for full history & streaks!</a>
-             </div>
-             <!-- Pro Feature: Streak -->
-             <div id="streak-display" class="mt-2 text-sm text-center hidden">
-                 🔥 Daily Streak: <span id="streak-count" class="font-bold">0</span> days
-             </div>
-        </section>
+            <!-- Upgrade to Pro Card -->
+            <section id="pro-section" class="p-3.5 rounded-lg text-center hidden opacity-0 bg-gradient-to-r from-[--pro-gradient-start] to-[--pro-gradient-end] text-white shadow-md"> <!-- GSAP target -->
+                 <h2 class="text-base font-semibold mb-1">Unlock Pro Features! ✨</h2>
+                 <p class="text-xs mb-2.5 opacity-90">Unlimited tasks, custom timers, site blocking, stats history, sync & more!</p>
+                 <button id="upgrade-pro-button" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold px-4 py-1.5 rounded-md text-sm shadow-sm transition-colors duration-150">$2 One-Time Payment</button>
+            </section>
 
-         <!-- Motivational Quote -->
-        <footer class="text-center text-xs text-gray-500 dark:text-gray-400 italic mt-4">
+             <!-- Pro Features Already Unlocked Message -->
+             <section id="pro-unlocked-message" class="p-2.5 rounded-lg text-center text-sm hidden opacity-0 border border-[--success-color]/30 bg-[--success-color]/10 text-[--success-color]"> <!-- GSAP target -->
+                 🚀 Pro features unlocked!
+             </section>
+
+        </main>
+
+         <!-- Motivational Quote Footer -->
+        <footer class="text-center text-xs text-[--text-secondary] italic mt-auto pt-3 border-t border-[--border-color] flex-shrink-0 opacity-0"> <!-- GSAP target -->
             "<span id="motivational-quote">Loading quote...</span>"
         </footer>
 
-        <!-- Upgrade to Pro Section (Placeholder) -->
-        <section id="pro-section" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-3 rounded-lg shadow text-center hidden">
-             <h2 class="text-lg font-semibold mb-1">Unlock Pro Features! ✨</h2>
-             <p class="text-sm mb-2">Get unlimited tasks, custom timers, auto site blocking, full stats, cloud sync & more!</p>
-             <button id="upgrade-pro-button" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold px-4 py-1 rounded text-sm shadow">$2 One-Time Payment</button>
-        </section>
-
-         <!-- Pro Features Already Unlocked Message -->
-         <section id="pro-unlocked-message" class="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-200 p-2 rounded-lg text-center text-sm hidden">
-             🚀 Pro features unlocked! Enjoy unlimited productivity.
-         </section>
-
-         <!-- Go to Full Dashboard (Pro) -->
-         <div id="dashboard-link-container" class="text-center mt-3 hidden">
-            <a href="dashboard.html" target="_blank" class="text-sm text-blue-500 hover:underline">View Full Dashboard & Stats</a>
-         </div>
     </div>
 
     <!-- Scripts -->
     <script src="utils/storage.js"></script>
     <script src="utils/dateUtils.js"></script>
     <script src="utils/notifier.js"></script>
+    <!-- Core Components -->
+    <script src="components/proFeatures.js"></script>
     <script src="components/themeManager.js"></script>
+    <script src="components/soundManager.js"></script>
+    <!-- Feature Components -->
+    <script src="components/statsTracker.js"></script>
+    <script src="components/streakTracker.js"></script>
     <script src="components/taskManager.js"></script>
     <script src="components/pomodoroTimer.js"></script>
     <script src="components/tabLimiter.js"></script>
-    <script src="components/statsTracker.js"></script>
-    <script src="components/streakTracker.js"></script> <!-- Load even if Pro for check -->
-    <script src="components/proFeatures.js"></script>
-    <script src="assets/quotes.json" type="application/json" id="quotes-data"></script> <!-- Embed quotes -->
+    <!-- Main Popup Logic -->
     <script src="popup.js"></script>
-    <!-- Stripe.js (Load only if needed) -->
-    <!-- <script src="https://js.stripe.com/v3/"></script> -->
-    <!-- <script src="stripe-payment.js"></script> --> <!-- Load if Pro logic needs it -->
 
 </body>
 </html>

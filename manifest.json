@@ -28,7 +28,7 @@
   },
   "chrome_url_overrides": {},
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' https://cdn.tailwindcss.com https://js.stripe.com https://apis.google.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.stripe.com https://api.notion.com https://www.googleapis.com;"
+    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://js.stripe.com https://apis.google.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.stripe.com https://api.notion.com https://www.googleapis.com;"
   },
   "host_permissions": [
     "https://*.google.com/*",

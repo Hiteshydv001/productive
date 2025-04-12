@@ -1,32 +1,127 @@
-/* Add any custom styles or overrides here */
+/* styles/popup.css */
+
 body {
-    /* Ensures the popup size is fixed */
     min-width: 384px; /* w-96 */
     max-width: 384px;
+    /* Height is fixed via #app-container */
+    display: flex;
+    flex-direction: column;
+    /* Base colors applied via inline style or themeManager */
+    /* Use CSS variables defined in themes.css */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
-/* Style for completed tasks */
-.task-item.completed span {
+#app-container {
+    height: 580px; /* Fixed height for popup */
+    max-height: 600px; /* Chrome Max */
+    display: flex;
+    flex-direction: column;
+}
+
+main { /* Make main content area scrollable */
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar Styling */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: background-color 0.2s ease;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: var(--text-secondary); opacity: 0.7; }
+
+.custom-scrollbar-small::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar-small::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px; border: 1px solid transparent; background-clip: content-box;
+    transition: background-color 0.2s ease;
+}
+.custom-scrollbar-small:hover::-webkit-scrollbar-thumb { background-color: var(--text-secondary); opacity: 0.7; }
+
+
+/* Task Item Styling */
+.task-item {
+    /* Base styles from Tailwind + vars */
+    transition: background-color 0.15s ease-in-out; /* Hover transition */
+}
+.task-item:hover { background-color: var(--bg-accent); }
+
+.task-item.completed label { /* Style the label text when completed */
     text-decoration: line-through;
-    color: #6b7280; /* Tailwind gray-500 */
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+.task-item .custom-checkbox { /* Target specific custom checkbox */
+    border-color: var(--border-color);
+    background-color: var(--bg-accent);
+}
+.task-item .custom-checkbox:checked {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+.task-item .custom-checkbox:focus { /* Custom focus ring using theme colors */
+    outline: 2px solid transparent; outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--accent-color);
+}
+.task-item .delete-task-button svg { stroke: currentColor; }
+
+
+/* Custom Checkbox Base Styling */
+.custom-checkbox {
+    appearance: none;
+    background-color: var(--bg-accent);
+    border: 1px solid var(--border-color);
+    padding: 0;
+    display: inline-block;
+    position: relative;
+    height: 1.1em;
+    width: 1.1em;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.custom-checkbox:checked {
+    background-color: var(--accent-color); /* Default checked color */
+    border-color: var(--accent-color);
+}
+/* Specific checkbox colors if needed */
+#pomodoro-notifications:checked { background-color: var(--accent-color); border-color: var(--accent-color); }
+/* Task completion uses success color */
+.task-item .custom-checkbox:checked { background-color: var(--success-color); border-color: var(--success-color); }
+
+.custom-checkbox:checked::after { /* Checkmark style */
+    content: ''; display: block; width: 0.3em; height: 0.6em;
+    border: solid white; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-50%, -50%);
+    position: absolute; left: 50%; top: 45%;
+}
+.custom-checkbox:focus { /* Consistent focus style */
+    outline: 2px solid transparent; outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color);
 }
 
-.dark .task-item.completed span {
-     color: #9ca3af; /* Tailwind gray-400 */
-}
+/* Input Number Arrow Removal */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
 
-/* Hide scrollbar but allow scrolling */
-#task-list::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
+/* General focus visibility (improves accessibility) */
+*:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    border-radius: 3px; /* Match general rounding */
 }
-#task-list {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
+*:focus:not(:focus-visible) { outline: none; }
 
-/* Basic input focus styles if needed beyond Tailwind defaults */
-input[type="text"]:focus, input[type="number"]:focus {
-    /* Example: outline: 2px solid transparent;
-       outline-offset: 2px; */
-    /* Tailwind's focus:ring usually handles this well */
+/* Ensure sections fill width within scroll container */
+main > section {
+    width: 100%;
 }
